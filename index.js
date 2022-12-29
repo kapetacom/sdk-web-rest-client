@@ -49,7 +49,7 @@ class RestClient {
                     break;
                 case 'body':
                     opts.body = JSON.stringify(requestArgument.value);
-                    opts.headers['Content-Type'] = 'application/json';
+                    opts.headers['content-type'] = 'application/json';
                     break;
                 case 'query':
                     query.push(encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(requestArgument.value));
@@ -58,7 +58,7 @@ class RestClient {
         });
 
         if (query.length > 0) {
-            opts.url += '?' + query.join('&');
+            url += '?' + query.join('&');
         }
 
         const result = await fetch(url, opts);
