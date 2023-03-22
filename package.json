@@ -1,6 +1,6 @@
 {
-  "name": "@blockware/sdk-web-rest-client",
-  "version": "0.0.2",
+  "name": "@kapeta/sdk-web-rest-client",
+  "version": "0.0.3",
   "description": "",
   "main": "index.js",
   "private": false,
@@ -8,7 +8,7 @@
     "access": "public"
   },
   "keywords": [
-    "blockware"
+    "kapeta"
   ],
   "license": "MIT"
 }
