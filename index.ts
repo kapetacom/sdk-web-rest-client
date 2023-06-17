@@ -1,4 +1,4 @@
-type RequestArgumentTransport = 'path' | 'header' | 'body' | 'query';
+type RequestArgumentTransport = 'path' | 'header' | 'body' | 'query' | 'PATH' | 'HEADER' | 'BODY' | 'QUERY'
 type RequestMethod =
     | 'GET'
     | 'POST'
