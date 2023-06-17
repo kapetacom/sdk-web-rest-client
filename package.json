@@ -1,6 +1,6 @@
 {
     "name": "@kapeta/sdk-web-rest-client",
-    "version": "0.0.4",
+    "version": "1.0.0",
     "description": "",
     "type": "commonjs",
     "exports": {
