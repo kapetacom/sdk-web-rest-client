@@ -23,6 +23,19 @@ export interface RequestArgument {
     transport: RequestArgumentTransport;
 }
 
+export class RestError extends Error {
+    public readonly response: Response;
+    public readonly statusCode: number;
+
+    constructor(error:string, response: Response) {
+        super(error);
+        this.response = response;
+        this.statusCode = response.status;
+
+    }
+
+}
+
 export class RestClient {
     private readonly _baseUrl: string;
 
@@ -96,6 +109,15 @@ export class RestClient {
 
         const result = await fetch(url, opts);
 
-        return result.json();
+        if (result.status === 404) {
+            return null;
+        }
+        const jsonResult = await result.json();
+        if (result.status >= 400) {
+            let error = jsonResult.error ?? 'Unknown error';
+            throw new RestError(error, result);
+        }
+
+        return jsonResult;
     }
 }
