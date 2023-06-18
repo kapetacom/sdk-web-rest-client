@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.3...v1.0.4) (2023-06-18)
+
+
+### Bug Fixes
+
+* Only parse json if content type matches and it is non-empty ([1b70c6a](https://github.com/kapetacom/sdk-web-rest-client/commit/1b70c6a6bf075ab64bcba18f62365d8733b4af90))
+
 ## [1.0.3](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.2...v1.0.3) (2023-06-18)
 
 
