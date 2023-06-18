@@ -112,12 +112,19 @@ export class RestClient {
         if (result.status === 404) {
             return null;
         }
-        const jsonResult = await result.json();
+
+        let output = null;
+        if (result.headers.get('content-type')?.startsWith('application/json')) {
+            //Only parse json if content-type is application/json
+            const text = await result.text();
+            output = text ? JSON.parse(text) : null;
+        }
+
         if (result.status >= 400) {
-            let error = jsonResult.error ?? 'Unknown error';
+            let error = output?.error ?? 'Unknown error';
             throw new RestError(error, result);
         }
 
-        return jsonResult;
+        return output;
     }
 }
