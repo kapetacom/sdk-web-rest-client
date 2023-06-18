@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.1...v1.0.2) (2023-06-18)
+
+
+### Bug Fixes
+
+* Throw errors when request fails ([1f22c9e](https://github.com/kapetacom/sdk-web-rest-client/commit/1f22c9e2096ef9a7f87a06a837509e51e56f8874))
+
 ## [1.0.1](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.0...v1.0.1) (2023-06-17)
 
 
