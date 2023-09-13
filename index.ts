@@ -1,4 +1,4 @@
-type RequestArgumentTransport = 'path' | 'header' | 'body' | 'query' | 'PATH' | 'HEADER' | 'BODY' | 'QUERY'
+type RequestArgumentTransport = 'path' | 'header' | 'body' | 'query' | 'PATH' | 'HEADER' | 'BODY' | 'QUERY';
 type RequestMethod =
     | 'GET'
     | 'POST'
@@ -27,13 +27,11 @@ export class RestError extends Error {
     public readonly response: Response;
     public readonly statusCode: number;
 
-    constructor(error:string, response: Response) {
+    constructor(error: string, response: Response) {
         super(error);
         this.response = response;
         this.statusCode = response.status;
-
     }
-
 }
 
 export class RestClient {
@@ -57,13 +55,18 @@ export class RestClient {
     }
 
     /**
+     * Executes a request to the specified path using the specified method.
      *
-     * @param {string} method
-     * @param {string} path
-     * @param {RequestArgument[]} requestArguments
-     * @return {Promise<Object>}
+     * @param {RequestMethod} method The HTTP method to use for the request.
+     * @param {string} path The path of the resource to request.
+     * @param {RequestArgument[]} requestArguments An array of request arguments.
+     * @return {Promise<ReturnData | null>} The result of the request, or null if the response status is 404.
      */
-    async execute(method: RequestMethod, path: string, requestArguments: RequestArgument[] = []) {
+    async execute<ReturnData extends Record<string, unknown> = any>(
+        method: RequestMethod,
+        path: string,
+        requestArguments: RequestArgument[] = []
+    ) {
         while (path.startsWith('/')) {
             path = path.substring(1);
         }
@@ -113,15 +116,15 @@ export class RestClient {
             return null;
         }
 
-        let output = null;
+        let output: ReturnData | null = null;
         if (result.headers.get('content-type')?.startsWith('application/json')) {
             //Only parse json if content-type is application/json
             const text = await result.text();
-            output = text ? JSON.parse(text) : null;
+            output = text ? (JSON.parse(text) as ReturnData) : null;
         }
 
         if (result.status >= 400) {
-            let error = output?.error ?? 'Unknown error';
+            const error = (output?.error ?? 'Unknown error') as string;
             throw new RestError(error, result);
         }
 
