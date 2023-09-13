@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.4...v1.0.5) (2023-09-13)
+
+
+### Bug Fixes
+
+* Change execute to be a generic function ([8413c61](https://github.com/kapetacom/sdk-web-rest-client/commit/8413c61bb6ee33b4af03bb36a3cde492ea24b4ec))
+
 ## [1.0.4](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.3...v1.0.4) (2023-06-18)
 
 
