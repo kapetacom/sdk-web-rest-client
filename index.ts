@@ -62,11 +62,7 @@ export class RestClient {
      * @param {RequestArgument[]} requestArguments An array of request arguments.
      * @return {Promise<ReturnData | null>} The result of the request, or null if the response status is 404.
      */
-    async execute<ReturnData extends Record<string, unknown> = any>(
-        method: RequestMethod,
-        path: string,
-        requestArguments: RequestArgument[] = []
-    ) {
+    async execute<ReturnData = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[] = []) {
         while (path.startsWith('/')) {
             path = path.substring(1);
         }
@@ -124,7 +120,10 @@ export class RestClient {
         }
 
         if (result.status >= 400) {
-            const error = (output?.error ?? 'Unknown error') as string;
+            const error =
+                output && typeof output === 'object' && 'error' in output && typeof output.error === 'string'
+                    ? output.error
+                    : 'Unknown error';
             throw new RestError(error, result);
         }
 
