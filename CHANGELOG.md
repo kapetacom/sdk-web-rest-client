@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.5...v1.0.6) (2023-09-13)
+
+
+### Bug Fixes
+
+* Widen the type boundary for ReturnData ([1c12b02](https://github.com/kapetacom/sdk-web-rest-client/commit/1c12b02fdf54d92c0cce591fe2415515af1086c8))
+
 ## [1.0.5](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.4...v1.0.5) (2023-09-13)
 
 
