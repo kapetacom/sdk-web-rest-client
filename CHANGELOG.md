@@ -1,3 +1,10 @@
+## [1.0.7](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.6...v1.0.7) (2023-10-18)
+
+
+### Bug Fixes
+
+* Change dates to numbers when serializing ([#4](https://github.com/kapetacom/sdk-web-rest-client/issues/4)) ([41c3573](https://github.com/kapetacom/sdk-web-rest-client/commit/41c3573864f6944e73017a355f29a4146b27ded0))
+
 ## [1.0.6](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.5...v1.0.6) (2023-09-13)
 
 
