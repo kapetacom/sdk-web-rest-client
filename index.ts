@@ -34,6 +34,14 @@ export class RestError extends Error {
     }
 }
 
+//We want dates as numbers
+const JSONStringifyReplacer = function(this:any, key:string, value:any) {
+    if (this[key] instanceof Date) {
+        return this[key].getTime();
+    }
+    return value;
+}
+
 export class RestClient {
     private readonly _baseUrl: string;
 
@@ -90,7 +98,7 @@ export class RestClient {
                     if (!headers['content-type']) {
                         headers['content-type'] = 'application/json';
                     }
-                    opts.body = JSON.stringify(requestArgument.value);
+                    opts.body = JSON.stringify(requestArgument.value, JSONStringifyReplacer);
                     break;
                 case 'query':
                     query.push(
