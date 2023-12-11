@@ -22,6 +22,7 @@ type RequestMethod =
     | 'UNLOCK'
     | 'PROPFIND'
     | 'VIEW';
+type Options = {url:string, init:RequestInit};
 export interface RequestArgument {
     name: string;
     value: any;
@@ -47,13 +48,135 @@ const JSONStringifyReplacer = function(this:any, key:string, value:any) {
     return value;
 }
 
+export class RestClientRequest<ReturnType = any> {
+    private readonly _baseUrl: string;
+    private readonly _path: string;
+    private readonly _method: RequestMethod;
+    private readonly _requestArguments: RequestArgument[];
+    private readonly _headers: { [key: string]: string } = {};
+
+    constructor(baseUrl: string, method: RequestMethod, path: string, requestArguments: RequestArgument[]) {
+        while (path.startsWith('/')) {
+            path = path.substring(1);
+        }
+
+        this._baseUrl = baseUrl;
+        this._path = path;
+        this._method = method;
+        this._requestArguments = requestArguments;
+    }
+
+    public get url() {
+        return this._baseUrl + this._path;
+    }
+
+    public get method() {
+        return this._method;
+    }
+
+    public get arguments() {
+        return [...this._requestArguments];
+    }
+
+    public get headers() {
+        return {
+            ...this._headers,
+        };
+    }
+
+    public withHeader(name: string, value: string) {
+        this._headers[name] = value;
+        return this;
+    }
+
+    public withBearerToken(token: string) {
+        return this.withHeader('Authorization', `Bearer ${token}`);
+    }
+
+    public withContentType(contentType: string) {
+        return this.withHeader('Content-Type', contentType);
+    }
+
+    public async call():Promise<ReturnType|null> {
+        const opts = this.createOptions();
+        const result = await fetch(opts.url, opts.init);
+
+        if (result.status === 404) {
+            return null;
+        }
+
+        let output: ReturnType | null = null;
+        if (result.headers.get('content-type')?.startsWith('application/json')) {
+            //Only parse json if content-type is application/json
+            const text = await result.text();
+            output = text ? (JSON.parse(text) as ReturnType) : null;
+        }
+
+        if (result.status >= 400) {
+            const error =
+                output && typeof output === 'object' && 'error' in output && typeof output.error === 'string'
+                    ? output.error
+                    : 'Unknown error';
+            throw new RestError(error, result);
+        }
+
+        return output;
+    }
+
+    private createOptions():Options {
+        const query: string[] = []
+        const headers = new Headers({
+            ...this._headers,
+            accept: 'application/json',
+        });
+        const out:Options = {
+            url: this.url,
+            init: {
+                method: this.method,
+                headers,
+            }
+        };
+
+        this._requestArguments.forEach((requestArgument) => {
+            const transport = requestArgument.transport?.toLowerCase() as Lowercase<RequestArgumentTransport>;
+            switch (transport) {
+                case 'path':
+                    out.url = out.url.replace('{' + requestArgument.name + '}', requestArgument.value);
+                    break;
+                case 'header':
+                    headers.set(requestArgument.name, requestArgument.value);
+                    break;
+                case 'body':
+                    if (!headers.has('content-type')) {
+                        headers.set('content-type', 'application/json');
+                    }
+                    out.init.body = JSON.stringify(requestArgument.value, JSONStringifyReplacer);
+                    break;
+                case 'query':
+                    query.push(
+                        encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(requestArgument.value)
+                    );
+                    break;
+                default:
+                    transport satisfies never;
+                    throw new Error('Unknown argument transport: ' + requestArgument.transport);
+            }
+        });
+
+        if (query.length > 0) {
+            out.url += '?' + query.join('&');
+        }
+        return out;
+    }
+
+}
+
 export class RestClient {
     private readonly _baseUrl: string;
+    private _fixedHeaders: { [key: string]: string } = {};
 
     /**
      * Initialise rest client
-     *
-     * @param {string} baseUrl
      */
     constructor(baseUrl: string) {
         if (!baseUrl) {
@@ -67,79 +190,51 @@ export class RestClient {
         this._baseUrl = baseUrl;
     }
 
-    /**
-     * Executes a request to the specified path using the specified method.
-     *
-     * @param {RequestMethod} method The HTTP method to use for the request.
-     * @param {string} path The path of the resource to request.
-     * @param {RequestArgument[]} requestArguments An array of request arguments.
-     * @return {Promise<ReturnData | null>} The result of the request, or null if the response status is 404.
-     */
-    async execute<ReturnData = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[] = []) {
-        while (path.startsWith('/')) {
-            path = path.substring(1);
+    public get baseUrl() {
+        return this._baseUrl;
+    }
+
+    public withHeader(name: string, value: string|undefined) {
+        if (!value) {
+            delete this._fixedHeaders[name];
+            return this;
         }
+        this._fixedHeaders[name] = value;
+        return this;
+    }
 
-        let url = this._baseUrl + path;
+    public withContentType(contentType: string|undefined) {
+        return this.withHeader('Content-Type', contentType);
+    }
 
-        const query: string[] = [];
-        const headers: { [key: string]: string } = {
-            accept: 'application/json',
-        };
-        const opts: RequestInit = {
-            method,
-            headers,
-        };
+    public withAuthorization(auth: string|undefined) {
+        return this.withHeader('Authorization', auth);
+    }
 
-        requestArguments.forEach((requestArgument) => {
-            switch (requestArgument.transport.toLowerCase()) {
-                case 'path':
-                    url = url.replaceAll('{' + requestArgument.name + '}', requestArgument.value);
-                    break;
-                case 'header':
-                    headers[requestArgument.name] = requestArgument.value;
-                    break;
-                case 'body':
-                    if (!headers['content-type']) {
-                        headers['content-type'] = 'application/json';
-                    }
-                    opts.body = JSON.stringify(requestArgument.value, JSONStringifyReplacer);
-                    break;
-                case 'query':
-                    query.push(
-                        encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(requestArgument.value)
-                    );
-                    break;
-                default:
-                    throw new Error('Unknown argument transport: ' + requestArgument.transport);
-            }
+    public withBearerToken(token: string|undefined) {
+        return this.withAuthorization(`Bearer ${token}`);
+    }
+
+    protected afterCreate(request: RestClientRequest):void {
+        // Override this method to add additional headers or similar to all requests
+    }
+
+    public create<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]):RestClientRequest<ReturnType> {
+        const request = new RestClientRequest<ReturnType>(this._baseUrl, method, path, requestArguments);
+        Object.keys(this._fixedHeaders).forEach((key) => {
+            request.withHeader(key, this._fixedHeaders[key]);
         });
 
-        if (query.length > 0) {
-            url += '?' + query.join('&');
-        }
+        this.afterCreate(request);
+        return request;
+    }
 
-        const result = await fetch(url, opts);
+    /**
+     * Executes a request to the specified path using the specified method.
+     */
+    public execute<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]) {
+        const request = this.create<ReturnType>(method, path, requestArguments);
 
-        if (result.status === 404) {
-            return null;
-        }
-
-        let output: ReturnData | null = null;
-        if (result.headers.get('content-type')?.startsWith('application/json')) {
-            //Only parse json if content-type is application/json
-            const text = await result.text();
-            output = text ? (JSON.parse(text) as ReturnData) : null;
-        }
-
-        if (result.status >= 400) {
-            const error =
-                output && typeof output === 'object' && 'error' in output && typeof output.error === 'string'
-                    ? output.error
-                    : 'Unknown error';
-            throw new RestError(error, result);
-        }
-
-        return output;
+        return request.call()
     }
 }
