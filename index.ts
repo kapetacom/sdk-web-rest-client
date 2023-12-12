@@ -89,8 +89,12 @@ export class RestClientRequest<ReturnType = any> {
         return this;
     }
 
+    public withAuthorization(auth: string) {
+        return this.withHeader('Authorization', auth);
+    }
+
     public withBearerToken(token: string) {
-        return this.withHeader('Authorization', `Bearer ${token}`);
+        return this.withAuthorization(`Bearer ${token}`);
     }
 
     public withContentType(contentType: string) {
@@ -172,6 +176,25 @@ export class RestClientRequest<ReturnType = any> {
 }
 
 export class RestClient {
+    private static globalHeaders: { [key: string]: string } = {};
+
+    static setHeader(name: string, value: string|undefined) {
+        if (!value) {
+            delete this.globalHeaders[name];
+            return this;
+        }
+        this.globalHeaders[name] = value;
+        return this;
+    }
+
+    static setAuthorization(auth: string|undefined) {
+        return this.setHeader('Authorization', auth);
+    }
+
+    static setBearerToken(token: string|undefined) {
+        return this.setAuthorization(token ? `Bearer ${token}` : token);
+    }
+
     private readonly _baseUrl: string;
     private _fixedHeaders: { [key: string]: string } = {};
 
@@ -212,7 +235,7 @@ export class RestClient {
     }
 
     public withBearerToken(token: string|undefined) {
-        return this.withAuthorization(`Bearer ${token}`);
+        return this.withAuthorization(token ? `Bearer ${token}` : token);
     }
 
     protected afterCreate(request: RestClientRequest):void {
@@ -221,8 +244,13 @@ export class RestClient {
 
     public create<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]):RestClientRequest<ReturnType> {
         const request = new RestClientRequest<ReturnType>(this._baseUrl, method, path, requestArguments);
-        Object.keys(this._fixedHeaders).forEach((key) => {
-            request.withHeader(key, this._fixedHeaders[key]);
+
+        Object.entries(RestClient.globalHeaders).forEach(([key, value]) => {
+            request.withHeader(key, value);
+        });
+
+        Object.entries(this._fixedHeaders).forEach(([key, value]) => {
+            request.withHeader(key, value);
         });
 
         this.afterCreate(request);
