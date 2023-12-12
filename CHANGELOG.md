@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.7...v1.1.0) (2023-12-12)
+
+
+### Features
+
+* Add Request object and options to adjust requests before sending ([#6](https://github.com/kapetacom/sdk-web-rest-client/issues/6)) ([a186ebe](https://github.com/kapetacom/sdk-web-rest-client/commit/a186ebe1b520b082b2064d7fee546f72e0673966))
+
 ## [1.0.7](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.6...v1.0.7) (2023-10-18)
 
 
