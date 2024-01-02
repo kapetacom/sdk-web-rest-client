@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.1.0...v2.0.0) (2024-01-02)
+
+
+### Features
+
+* Prefix all internal methods with $ to avoid name clashes ([#7](https://github.com/kapetacom/sdk-web-rest-client/issues/7)) ([24a36fa](https://github.com/kapetacom/sdk-web-rest-client/commit/24a36fa65049b38292c4ea7c0196e32df0fc90a8))
+
+
+### BREAKING CHANGES
+
+* We generate methods names which can be named anything
+
 # [1.1.0](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.0.7...v1.1.0) (2023-12-12)
 
 
