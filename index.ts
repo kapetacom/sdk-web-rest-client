@@ -213,11 +213,11 @@ export class RestClient {
         this._baseUrl = baseUrl;
     }
 
-    public get baseUrl() {
+    public get $baseUrl() {
         return this._baseUrl;
     }
 
-    public withHeader(name: string, value: string|undefined) {
+    public $withHeader(name: string, value: string|undefined) {
         if (!value) {
             delete this._fixedHeaders[name];
             return this;
@@ -226,23 +226,23 @@ export class RestClient {
         return this;
     }
 
-    public withContentType(contentType: string|undefined) {
-        return this.withHeader('Content-Type', contentType);
+    public $withContentType(contentType: string|undefined) {
+        return this.$withHeader('Content-Type', contentType);
     }
 
-    public withAuthorization(auth: string|undefined) {
-        return this.withHeader('Authorization', auth);
+    public $withAuthorization(auth: string|undefined) {
+        return this.$withHeader('Authorization', auth);
     }
 
-    public withBearerToken(token: string|undefined) {
-        return this.withAuthorization(token ? `Bearer ${token}` : token);
+    public $withBearerToken(token: string|undefined) {
+        return this.$withAuthorization(token ? `Bearer ${token}` : token);
     }
 
-    protected afterCreate(request: RestClientRequest):void {
+    protected $afterCreate(request: RestClientRequest):void {
         // Override this method to add additional headers or similar to all requests
     }
 
-    public create<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]):RestClientRequest<ReturnType> {
+    public $create<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]):RestClientRequest<ReturnType> {
         const request = new RestClientRequest<ReturnType>(this._baseUrl, method, path, requestArguments);
 
         Object.entries(RestClient.globalHeaders).forEach(([key, value]) => {
@@ -253,15 +253,15 @@ export class RestClient {
             request.withHeader(key, value);
         });
 
-        this.afterCreate(request);
+        this.$afterCreate(request);
         return request;
     }
 
     /**
      * Executes a request to the specified path using the specified method.
      */
-    public execute<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]) {
-        const request = this.create<ReturnType>(method, path, requestArguments);
+    public $execute<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]) {
+        const request = this.$create<ReturnType>(method, path, requestArguments);
 
         return request.call()
     }
