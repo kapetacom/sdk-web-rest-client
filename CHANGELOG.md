@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/kapetacom/sdk-web-rest-client/compare/v2.0.0...v2.0.1) (2024-01-05)
+
+
+### Bug Fixes
+
+* Do not send values that are null or undefined ([#8](https://github.com/kapetacom/sdk-web-rest-client/issues/8)) ([857b120](https://github.com/kapetacom/sdk-web-rest-client/commit/857b120a840dd0efca0f67e4a30efbcc1d8c4542))
+
 # [2.0.0](https://github.com/kapetacom/sdk-web-rest-client/compare/v1.1.0...v2.0.0) (2024-01-02)
 
 
