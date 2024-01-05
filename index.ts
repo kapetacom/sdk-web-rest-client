@@ -143,23 +143,28 @@ export class RestClientRequest<ReturnType = any> {
 
         this._requestArguments.forEach((requestArgument) => {
             const transport = requestArgument.transport?.toLowerCase() as Lowercase<RequestArgumentTransport>;
+            const valueIsEmpty = requestArgument.value === undefined || requestArgument.value === null;
             switch (transport) {
                 case 'path':
-                    out.url = out.url.replace('{' + requestArgument.name + '}', requestArgument.value);
+                    out.url = out.url.replace('{' + requestArgument.name + '}', valueIsEmpty ? '' : requestArgument.value);
                     break;
                 case 'header':
-                    headers.set(requestArgument.name, requestArgument.value);
+                    if (!valueIsEmpty) {
+                        headers.set(requestArgument.name, requestArgument.value);
+                    }
                     break;
                 case 'body':
                     if (!headers.has('content-type')) {
                         headers.set('content-type', 'application/json');
                     }
-                    out.init.body = JSON.stringify(requestArgument.value, JSONStringifyReplacer);
+                    out.init.body = JSON.stringify(requestArgument.value === undefined ? null : requestArgument.value, JSONStringifyReplacer);
                     break;
                 case 'query':
-                    query.push(
-                        encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(requestArgument.value)
-                    );
+                    if (!valueIsEmpty) {
+                        query.push(
+                            encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(requestArgument.value)
+                        );
+                    }
                     break;
                 default:
                     transport satisfies never;
