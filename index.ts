@@ -22,7 +22,7 @@ type RequestMethod =
     | 'UNLOCK'
     | 'PROPFIND'
     | 'VIEW';
-type Options = {url:string, init:RequestInit};
+type Options = { url: string; init: RequestInit };
 export interface RequestArgument {
     name: string;
     value: any;
@@ -41,12 +41,12 @@ export class RestError extends Error {
 }
 
 //We want dates as numbers
-const JSONStringifyReplacer = function(this:any, key:string, value:any) {
+const JSONStringifyReplacer = function (this: any, key: string, value: any) {
     if (this[key] instanceof Date) {
         return this[key].getTime();
     }
     return value;
-}
+};
 
 export class RestClientRequest<ReturnType = any> {
     private readonly _baseUrl: string;
@@ -101,7 +101,7 @@ export class RestClientRequest<ReturnType = any> {
         return this.withHeader('Content-Type', contentType);
     }
 
-    public async call():Promise<ReturnType|null> {
+    public async call(): Promise<ReturnType | null> {
         const opts = this.createOptions();
         const result = await fetch(opts.url, opts.init);
 
@@ -127,18 +127,18 @@ export class RestClientRequest<ReturnType = any> {
         return output;
     }
 
-    private createOptions():Options {
-        const query: string[] = []
+    private createOptions(): Options {
+        const query: string[] = [];
         const headers = new Headers({
             ...this._headers,
             accept: 'application/json',
         });
-        const out:Options = {
+        const out: Options = {
             url: this.url,
             init: {
                 method: this.method,
                 headers,
-            }
+            },
         };
 
         this._requestArguments.forEach((requestArgument) => {
@@ -146,7 +146,10 @@ export class RestClientRequest<ReturnType = any> {
             const valueIsEmpty = requestArgument.value === undefined || requestArgument.value === null;
             switch (transport) {
                 case 'path':
-                    out.url = out.url.replace('{' + requestArgument.name + '}', valueIsEmpty ? '' : requestArgument.value);
+                    out.url = out.url.replace(
+                        '{' + requestArgument.name + '}',
+                        valueIsEmpty ? '' : requestArgument.value
+                    );
                     break;
                 case 'header':
                     if (!valueIsEmpty) {
@@ -157,13 +160,32 @@ export class RestClientRequest<ReturnType = any> {
                     if (!headers.has('content-type')) {
                         headers.set('content-type', 'application/json');
                     }
-                    out.init.body = JSON.stringify(requestArgument.value === undefined ? null : requestArgument.value, JSONStringifyReplacer);
+                    out.init.body = JSON.stringify(
+                        requestArgument.value === undefined ? null : requestArgument.value,
+                        JSONStringifyReplacer
+                    );
                     break;
                 case 'query':
                     if (!valueIsEmpty) {
-                        query.push(
-                            encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(requestArgument.value)
-                        );
+                        if (requestArgument.value instanceof Set) {
+                            requestArgument.value.forEach((value) => {
+                                query.push(encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(value));
+                            });
+                        } else if (requestArgument.value instanceof Map) {
+                            requestArgument.value.forEach((value, key) => {
+                                query.push(
+                                    encodeURIComponent(requestArgument.name) +
+                                        '=' +
+                                        encodeURIComponent(key + '=' + value)
+                                );
+                            });
+                        } else {
+                            query.push(
+                                encodeURIComponent(requestArgument.name) +
+                                    '=' +
+                                    encodeURIComponent(requestArgument.value)
+                            );
+                        }
                     }
                     break;
                 default:
@@ -177,13 +199,12 @@ export class RestClientRequest<ReturnType = any> {
         }
         return out;
     }
-
 }
 
 export class RestClient {
     private static globalHeaders: { [key: string]: string } = {};
 
-    static setHeader(name: string, value: string|undefined) {
+    static setHeader(name: string, value: string | undefined) {
         if (!value) {
             delete this.globalHeaders[name];
             return this;
@@ -192,11 +213,11 @@ export class RestClient {
         return this;
     }
 
-    static setAuthorization(auth: string|undefined) {
+    static setAuthorization(auth: string | undefined) {
         return this.setHeader('Authorization', auth);
     }
 
-    static setBearerToken(token: string|undefined) {
+    static setBearerToken(token: string | undefined) {
         return this.setAuthorization(token ? `Bearer ${token}` : token);
     }
 
@@ -222,7 +243,7 @@ export class RestClient {
         return this._baseUrl;
     }
 
-    public $withHeader(name: string, value: string|undefined) {
+    public $withHeader(name: string, value: string | undefined) {
         if (!value) {
             delete this._fixedHeaders[name];
             return this;
@@ -231,23 +252,27 @@ export class RestClient {
         return this;
     }
 
-    public $withContentType(contentType: string|undefined) {
+    public $withContentType(contentType: string | undefined) {
         return this.$withHeader('Content-Type', contentType);
     }
 
-    public $withAuthorization(auth: string|undefined) {
+    public $withAuthorization(auth: string | undefined) {
         return this.$withHeader('Authorization', auth);
     }
 
-    public $withBearerToken(token: string|undefined) {
+    public $withBearerToken(token: string | undefined) {
         return this.$withAuthorization(token ? `Bearer ${token}` : token);
     }
 
-    protected $afterCreate(request: RestClientRequest):void {
+    protected $afterCreate(request: RestClientRequest): void {
         // Override this method to add additional headers or similar to all requests
     }
 
-    public $create<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]):RestClientRequest<ReturnType> {
+    public $create<ReturnType = any>(
+        method: RequestMethod,
+        path: string,
+        requestArguments: RequestArgument[]
+    ): RestClientRequest<ReturnType> {
         const request = new RestClientRequest<ReturnType>(this._baseUrl, method, path, requestArguments);
 
         Object.entries(RestClient.globalHeaders).forEach(([key, value]) => {
@@ -268,6 +293,6 @@ export class RestClient {
     public $execute<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]) {
         const request = this.$create<ReturnType>(method, path, requestArguments);
 
-        return request.call()
+        return request.call();
     }
 }
