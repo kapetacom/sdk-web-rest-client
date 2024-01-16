@@ -1,3 +1,11 @@
+## [2.0.2](https://github.com/kapetacom/sdk-web-rest-client/compare/v2.0.1...v2.0.2) (2024-01-16)
+
+
+### Bug Fixes
+
+* Format codebase ([cc6d895](https://github.com/kapetacom/sdk-web-rest-client/commit/cc6d895a6b792a6cb895635ebbcc179cc0fee593))
+* Handle Set and Map in query transport ([06e3932](https://github.com/kapetacom/sdk-web-rest-client/commit/06e39327386468377750cfddd2c08cf3779855cc))
+
 ## [2.0.1](https://github.com/kapetacom/sdk-web-rest-client/compare/v2.0.0...v2.0.1) (2024-01-05)
 
 
