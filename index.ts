@@ -7,6 +7,6 @@ import { BaseRestClient } from '@kapeta/sdk-rest';
 export class RestClient extends BaseRestClient {
 
     constructor(baseUrl: string) {
-        super(window.fetch, baseUrl);
+        super(window.fetch.bind(window), baseUrl);
     }
 }
