@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/kapetacom/sdk-web-rest-client/compare/v2.0.2...v2.1.0) (2024-01-22)
+
+
+### Features
+
+* Use rest client from shared lib ([#10](https://github.com/kapetacom/sdk-web-rest-client/issues/10)) ([21c6b61](https://github.com/kapetacom/sdk-web-rest-client/commit/21c6b61057b06045298860b75daa2a885f74001d))
+
 ## [2.0.2](https://github.com/kapetacom/sdk-web-rest-client/compare/v2.0.1...v2.0.2) (2024-01-16)
 
 
